@@ -1,9 +1,7 @@
 <<<<<<< HEAD
-# Vue js Carousel
+# Vue JS Ticket Booking
 
 =======
-# front-end
-
 > A Vue.js project
 
 ## Build Setup
@@ -21,4 +19,4 @@ npm run build
 # build for production and view the bundle analyzer report
 npm run build --report
 ```
->>>>>>> Vue js carousel
+>>>>>>> Vue JS Ticket Booking

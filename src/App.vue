@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <router-view/>
+    <vue-up></vue-up>
   </div>
 </template>
 
@@ -11,15 +12,7 @@ export default {
 </script>
 
 <style>
-
-/* reset */
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,dl,dt,dd,ol,nav ul,nav li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline;}
-article, aside, details, figcaption, figure,footer, header, hgroup, menu, nav, section {display: block;}
 ol,ul{list-style:none;margin:0px;padding:0px;}
-blockquote,q{quotes:none;}
-blockquote:before,blockquote:after,q:before,q:after{content:'';content:none;}
-table{border-collapse:collapse;border-spacing:0;}
-/* start editing from here */
 a{text-decoration:none;}
 .txt-rt{text-align:right;}/* text align right */
 .txt-lt{text-align:left;}/* text align left */
@@ -35,28 +28,14 @@ nav.vertical ul li{ display:block;}/* vertical menu */
 nav.horizontal ul li{ display: inline-block;}/* horizontal menu */
 ul li{text-align: left;}
 img{max-width:100%;}
-/*end reset*/
-
-
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-   /*background:url(../images/banner2.jpg) no-repeat center;*/
-}
-
 body{
   padding:0;
   margin:0;
-    /*background:url(../images/banner2.jpg) no-repeat center;*/
-    background-size: cover;
-    -webkit-background-size: cover;
-    -o-background-size: cover;
-    -ms-background-size: cover;
-    -moz-background-size: cover;
+  background-size: cover;
+  -webkit-background-size: cover;
+  -o-background-size: cover;
+  -ms-background-size: cover;
+  -moz-background-size: cover;
   font-family: 'Open Sans', sans-serif !important;
 }
 
@@ -74,4 +53,14 @@ ul{
 label{
   margin:0;
 }
+
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  background:url(./assets/images/cinema.jpg) no-repeat center;
+}
+
 </style>

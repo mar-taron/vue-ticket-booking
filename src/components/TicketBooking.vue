@@ -1,38 +1,45 @@
 <template>
   <div class="main">
-    <h2>Multiplex Theatre Showing Screen 1</h2>
+    <h2>Кино</h2>
     <div class="demo">
       <div id="seat-map">
-        <div class="front">SCREEN</div>
-        <div class="seatCharts-row">
-          <div class="seatCharts-cell seatCharts-space">1</div>
-          <div id="1_1" role="checkbox" aria-checked="false" focusable="true" tabindex="-1" class="seatCharts-seat seatCharts-cell available">1</div><div id="1_2" role="checkbox" aria-checked="false" focusable="true" tabindex="-1" class="seatCharts-seat seatCharts-cell unavailable">2</div><div id="1_3" role="checkbox" aria-checked="false" focusable="true" tabindex="-1" class="seatCharts-seat seatCharts-cell available">3</div><div id="1_4" role="checkbox" aria-checked="true" focusable="true" tabindex="-1" class="seatCharts-seat seatCharts-cell selected">4</div><div id="1_5" role="checkbox" aria-checked="true" focusable="true" tabindex="-1" class="seatCharts-seat seatCharts-cell selected">5</div><div id="1_6" role="checkbox" aria-checked="false" focusable="true" tabindex="-1" class="seatCharts-seat seatCharts-cell available">6</div><div id="1_7" role="checkbox" aria-checked="false" focusable="true" tabindex="-1" class="seatCharts-seat seatCharts-cell available">7</div><div id="1_8" role="checkbox" aria-checked="false" focusable="true" tabindex="-1" class="seatCharts-seat seatCharts-cell available">8</div><div id="1_9" role="checkbox" aria-checked="false" focusable="true" tabindex="-1" class="seatCharts-seat seatCharts-cell available">9</div><div id="1_10" role="checkbox" aria-checked="false" focusable="true" tabindex="-1" class="seatCharts-seat seatCharts-cell available">10</div>
-        </div>         
+        <div class="front">ЭКРАН</div>
+          <div class="seatCharts-row" v-for="row in seats">
+            <div class="seatCharts-cell seatCharts-space">{{row}}</div>
+            <div v-for="col in seats" :row="row"  :col="col == 10 ? 0 : col"  @click="selectSeat"
+            :class="['seatCharts-seat seatCharts-cell ', 
+            { 'unavailable': (soldSeats.indexOf(Number(row.toString() + (col == 10 ? 0 : col).toString()) - 10 ) != -1),
+              'selected': (selectedSeats.indexOf(Number(row.toString() + (col == 10 ? 0 : col).toString()) - 10 ) != -1),
+              'available': (soldSeats.indexOf(Number(row.toString() + (col == 10 ? 0 : col).toString()) - 10) == -1) }]">
+              {{col}}
+            </div>
+          </div>
       </div>
       <div class="booking-details">
         <ul class="book-left">
-          <li>Movie </li>
-          <li>Time </li>
-          <li>Tickets</li>
-          <li>Total</li>
-          <li>Seats :</li>
+          <li>Фильм </li>
+          <li>Время </li>
+          <li>Билеты</li>
+          <li>Сумма</li>
+          <li>Места :</li>
         </ul>
         <ul class="book-right">
-          <li>: Gingerclown</li>
-          <li>: April 3, 21:00</li>
-          <li>: <span id="counter">0</span></li>
-          <li>: <b><i>$</i><span id="total">0</span></b></li>
+          <li>: Титаник</li>
+          <li>: Июнь 25, 21:00</li>
+          <li>: <span id="counter">{{counter}}</span></li>
+          <li>: <b><span id="total">{{total}} <i>руб</i></span></b></li>
         </ul>
         <div class="clear"></div>
-        <ul id="selected-seats" class="scrollbar scrollbar1" tabindex="5000" style="overflow: hidden; outline: none;"><li id="cart-item-1_4">Row1 Seat4</li><li id="cart-item-1_5">Row1 Seat5</li></ul>
-      
-            
-        <button class="checkout-button">Book Now</button> 
+        <ul id="selected-seats" class="scrollbar scrollbar1" >
+          <li v-for="seat in selectedSeats" >ряд{{getRowAndSeat(seat).row}} место{{getRowAndSeat(seat).seat}}</li>
+        </ul>   
+        <button class="checkout-button book"  @click="book" >Забронировать</button> 
+        <button class="checkout-button cancel"  @click="cancel" >Oтменить</button> 
         <div id="legend" class="seatCharts-legend">
           <ul class="seatCharts-legendList">
             <li class="seatCharts-legendItem">
             <div class="seatCharts-seat seatCharts-cell available"></div>
-            <span class="seatCharts-legendDescription">Available</span></li><li class="seatCharts-legendItem"><div class="seatCharts-seat seatCharts-cell unavailable"></div><span class="seatCharts-legendDescription">Sold</span></li><li class="seatCharts-legendItem"><div class="seatCharts-seat seatCharts-cell selected"></div><span class="seatCharts-legendDescription">Selected</span></li></ul></div>
+            <span class="seatCharts-legendDescription">Имеющийся</span></li><li class="seatCharts-legendItem"><div class="seatCharts-seat seatCharts-cell unavailable"></div><span class="seatCharts-legendDescription">Проданный</span></li><li class="seatCharts-legendItem"><div class="seatCharts-seat seatCharts-cell selected"></div><span class="seatCharts-legendDescription">Выбранный</span></li></ul></div>
       </div>
       <div style="clear:both"></div>
       </div>
@@ -41,18 +48,93 @@
 
 <script>
 export default {
-  name: 'TicketBooking'
+  name: 'TicketBooking',
+
+  data(){
+    return{
+      counter: 0,
+      total: 0,
+      soldSeats: [],
+      selectedSeats: [],
+      ticket: 100,
+      seats: [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+      ]
+    }
+  },
+
+  methods:{
+    randomSeats(){
+      while(this.soldSeats.length < 10){
+        var randomnumber = Math.floor(Math.random()*100) + 1;
+        if(this.soldSeats.indexOf(randomnumber) > -1) continue;
+        this.soldSeats[this.soldSeats.length] = randomnumber;
+      }
+    },
+
+    selectSeat(e){
+      let row = e.currentTarget.getAttribute('row');
+      let col = e.currentTarget.getAttribute('col');
+      let seat = Number(row.toString() + (col == 10 ? 0 : col).toString()) - 10;
+      let index = this.selectedSeats.indexOf(seat);
+      if (index > -1) {
+        this.selectedSeats.splice(index, 1);
+      } else {
+        this.selectedSeats.push(seat);
+      }
+      this.counter = this.selectedSeats.length;
+      this.total = this.selectedSeats.length * this.ticket;
+    },
+
+    getRowAndSeat(num){
+      return {
+        row: Math.floor(num/10) + 1,
+        seat: num % 10 == 0 ? 10 :  num % 10
+      };
+    },
+
+    book(){
+      if(this.selectedSeats.length) {
+        this.notify();
+      }
+      this.soldSeats.push(...this.selectedSeats);
+      this.counter = 0;
+      this.total = 0;
+      this.selectedSeats = [];
+      
+    },
+
+    cancel(){
+      this.selectedSeats = [];
+      this.counter = 0;
+      this.total = 0;
+    },
+
+    notify () {
+      this.$popup({
+        message         : 'Спасибо за заказ!',
+        color           : '#fff',
+        backgroundColor : '#D88A04',
+        delay           : 5
+      })
+    }  
+  },
+
+  created(){
+    this.randomSeats();
+    console.log(this.soldSeats);
+  }
 }
 </script>
 
 <style>
-
 .main{
     width: 45%;
     margin: 45px auto;
     background:rgba(255, 255, 255, 0.88);
     padding: 30px 30px;
 }
+
 .main h2 {
     color: #000000;
     font-size: 28px;
@@ -73,113 +155,121 @@ p.copy_rights a{
 p.copy_rights a:hover{
   text-decoration:underline;
 }
+
 /*-- movie ticket --*/
+#seat-map{
+  float:left;
+}
+
 .front{
-    margin: 5px 4px 45px 38px;
-    background-color: #D88A04;
-    color: #fff;
-    text-align: center;
-    padding: 9px 0;
-    border-radius: 3px;
-  }
+  margin: 5px 4px 45px 38px;
+  background-color: #D88A04;
+  color: #fff;
+  text-align: center;
+  padding: 9px 0;
+  border-radius: 3px;
+}
 .booking-details {
-    float: right;
-    width: 38%;
+  float: right;
+  width: 38%;
 }
 .booking-details h3 {
   margin: 5px 5px 0 0;
   font-size: 16px;
-  }
+}
 .booking-details p {
-    line-height: 1.5em;
-    font-size: 18px;
-    color: #D88A04;
+  line-height: 1.5em;
+  font-size: 18px;
+  color: #D88A04;
   font-weight:600;
 }
 .booking-details p span{
-    color: #000;
-    font-size: 14px;
+  color: #000;
+  font-size: 14px;
   font-weight:normal;
 }
 div.seatCharts-cell {
   color: #182C4E;
-    height: 29px;
-    width: 29px;
-    line-height: 27px;
-    margin: 3px;
-    float: left;
-    text-align: center;
-    outline: none;
-    font-size: 13px;
-  }
+  height: 29px;
+  width: 29px;
+  line-height: 27px;
+  margin: 3px;
+  float: left;
+  text-align: center;
+  outline: none;
+  font-size: 13px;
+}
 div.seatCharts-seat {
   color: #fff;
   cursor: pointer;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
-  }
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
 div.seatCharts-row {
   height: 35px;
-  }
+}
 div.seatCharts-seat.available {
-  background-color: #949494;
-  }
-div.seatCharts-seat.focused {
   background-color: #00B70C;
+}
+div.seatCharts-seat.focused, div.seatCharts-seat.available:hover {
+  background-color: #D88A04;
   border: none;
-  }
+}
 div.seatCharts-seat.selected {
-  background-color: #00B70C;
-  }
+  background-color: #D88A04;
+}
 div.seatCharts-seat.unavailable {
   background-color: #D00000;
   cursor: not-allowed;
-  }
+}
 div.seatCharts-container {
-    border-right: 1px solid #adadad;
-    width: 54%;
-    padding: 0 20px 0 0;
-    float: left;
+  border-right: 1px solid #adadad;
+  width: 54%;
+  padding: 0 20px 0 0;
+  float: left;
 }
 div.seatCharts-legend {
   padding-left: 0px;
-  }
+}
 ul.seatCharts-legendList {
   padding-left: 0px;
-  }
+}
 .seatCharts-legendItem{
   margin-top: 10px;
   line-height: 2;
-  }
+}
 span.seatCharts-legendDescription {
   margin-left: 5px;
   line-height: 30px;
-  }
+}
 .checkout-button {
-    display: block;
-    margin: 16px 0 22px;
-    border:none;
-    font-size: 16px;
-    cursor: pointer;
-    background: #D88A04;
-    padding: 7px 11px;
-    color: #fff;
+  display: block;
+  margin: 16px 0 22px;
+  border:none;
+  font-size: 16px;
+  cursor: pointer;
+  background: #D88A04;
+  padding: 7px 11px;
+  color: #fff;
   outline:none;
   transition: 0.5s all;
-    -webkit-transition: 0.5s all;
-    -o-transition: 0.5s all;
-    -moz-transition: 0.5s all;
-    -ms-transition: 0.5s all;
-  }
+  -webkit-transition: 0.5s all;
+  -o-transition: 0.5s all;
+  -moz-transition: 0.5s all;
+  -ms-transition: 0.5s all;
+}
+.checkout-button.book{
+  float: left;
+  margin-right: 10px;
+}
 .checkout-button:hover {
-    background: #000;
+  background: #000;
   transition: 0.5s all;
-    -webkit-transition: 0.5s all;
-    -o-transition: 0.5s all;
-    -moz-transition: 0.5s all;
-  /*-- w3layouts --*/
-    -ms-transition: 0.5s all;
+  -webkit-transition: 0.5s all;
+  -o-transition: 0.5s all;
+  -moz-transition: 0.5s all;
+  -ms-transition: 0.5s all;
 }
 #selected-seats {
   max-height: 84px;
@@ -197,7 +287,7 @@ span.seatCharts-legendDescription {
     color: #000;
     font-weight: 600;
     padding: 6px 11px;
-    width: 50%;
+    width: 60%;
   }
 .scrollbar {
     overflow-y: scroll;
@@ -228,8 +318,6 @@ ul.book-right li {
     color: #000;
     line-height: 1.9em;
 }
-/*-- agileits --*/
-/*-- //movie ticket --*/
 
 /*-- responsive media queries --*/
 

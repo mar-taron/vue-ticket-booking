@@ -1,6 +1,6 @@
 <template>
   <div class="content">
-    <h1>Movie Ticket Booking Widget</h1>
+    <h1>Бронирования билетов</h1>
     <TicketBooking />
   </div>
 </template>
